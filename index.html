@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Анонимность в Telegram — миф и реальность</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,500;14..32,700;14..32,900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0b0d10;
+      color: #eaeef2;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    #particles-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0 2rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo {
+      font-weight: 900;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #b7b7b7, #ffffff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-links {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .header-links a {
+      color: #9aa4b0;
+      text-decoration: none;
+      transition: color 0.3s, transform 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .header-links a:hover {
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .header-links a i {
+      font-style: normal;
+      background: #1e262e;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: #7a8a9a;
+    }
+
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 3rem;
+      padding: 4rem 0 3rem;
+    }
+
+    .hero-text {
+      flex: 1 1 400px;
+      opacity: 0;
+      transform: translateY(40px);
+      animation: fadeUp 1s ease 0.2s forwards;
+    }
+
+    .hero-text .badge {
+      display: inline-block;
+      background: rgba(255, 70, 70, 0.15);
+      color: #ff6b6b;
+      font-weight: 600;
+      font-size: 0.75rem;
+      padding: 0.2rem 1rem;
+      border-radius: 30px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border: 1px solid rgba(255, 70, 70, 0.2);
+      margin-bottom: 1rem;
+    }
+
+    .hero-text h1 {
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-text h1 span {
+      background: linear-gradient(135deg, #ff4d4d, #f9a825);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-text p {
+      font-size: 1.1rem;
+      color: #b0bec5;
+      max-width: 500px;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .hero-image {
+      flex: 0 0 280px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transform: scale(0.8);
+      animation: scaleIn 1s ease 0.4s forwards;
+    }
+
+    .hero-image .mask-wrapper {
+      position: relative;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255, 70, 70, 0.2), transparent 70%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulseGlow 3s ease-in-out infinite;
+    }
+
+    .hero-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 30px rgba(255, 70, 70, 0.3));
+      transition: transform 0.3s;
+    }
+
+    .hero-image img:hover {
+      transform: scale(1.04) rotate(2deg);
+    }
+
+    .article {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .article-block {
+      max-width: 820px;
+      margin: 0 auto 4rem;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .article-block.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .article-block h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .article-block h2 .step {
+      background: #1e262e;
+      color: #f9a825;
+      font-size: 1rem;
+      padding: 0.1rem 0.8rem;
+      border-radius: 40px;
+      font-weight: 600;
+    }
+
+    .article-block p {
+      font-size: 1.05rem;
+      color: #cfd8dc;
+      margin-bottom: 1rem;
+      font-weight: 300;
+    }
+
+    .article-block .highlight {
+      color: #ff8a80;
+      font-weight: 500;
+    }
+
+    .article-block .quote {
+      border-left: 3px solid #f9a825;
+      padding-left: 1.5rem;
+      margin: 1.5rem 0;
+      font-style: italic;
+      color: #b0bec5;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, #f9a825, transparent);
+      margin: 0.5rem 0 1.5rem;
+    }
+
+    .error-card {
+      background: rgba(255, 70, 70, 0.06);
+      border: 1px solid rgba(255, 70, 70, 0.2);
+      border-radius: 20px;
+      padding: 2rem 2rem 1.8rem;
+      margin: 2.5rem 0;
+      backdrop-filter: blur(4px);
+      transition: background 0.3s;
+    }
+
+    .error-card:hover {
+      background: rgba(255, 70, 70, 0.10);
+    }
+
+    .error-card h3 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #ff6b6b;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .error-card p {
+      color: #e0e0e0;
+      font-weight: 300;
+    }
+
+    .tips-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+      margin: 1.5rem 0 0.5rem;
+    }
+
+    .tip-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      transition: background 0.3s, border-color 0.3s, transform 0.2s;
+    }
+
+    .tip-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(249, 168, 37, 0.3);
+      transform: translateY(-3px);
+    }
+
+    .tip-item .icon {
+      font-size: 1.3rem;
+      line-height: 1.4;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .tip-item .text {
+      font-size: 0.95rem;
+      color: #cfd8dc;
+      font-weight: 300;
+    }
+
+    .tip-item .text strong {
+      color: #f9a825;
+      font-weight: 600;
+    }
+
+    @media (max-width: 700px) {
+      .tips-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .footer .creator {
+      font-size: 0.95rem;
+      font-weight: 300;
+      color: #90a4ae;
+    }
+
+    .footer .creator a {
+      color: #fff;
+      font-weight: 600;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      transition: border-color 0.3s;
+    }
+
+    .footer .creator a:hover {
+      border-color: #f9a825;
+    }
+
+    .footer .channel {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      background: #171e24;
+      padding: 0.5rem 1.2rem 0.5rem 1rem;
+      border-radius: 40px;
+      border: 1px solid #2a343c;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .footer .channel:hover {
+      border-color: #f9a825;
+      transform: translateY(-2px);
+    }
+
+    .footer .channel a {
+      color: #eaeef2;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .footer .channel .arrow {
+      display: inline-block;
+      transition: transform 0.3s;
+    }
+
+    .footer .channel:hover .arrow {
+      transform: translateX(4px);
+    }
+
+    @keyframes fadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow: 0 0 30px rgba(255, 70, 70, 0.2);
+      }
+      50% {
+        box-shadow: 0 0 60px rgba(255, 70, 70, 0.5);
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0d10;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #2a343c;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f9a825;
+    }
+
+    @media (max-width: 700px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .hero {
+        flex-direction: column-reverse;
+        text-align: center;
+      }
+      .hero-text p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .hero-image {
+        flex-basis: auto;
+      }
+      .hero-image .mask-wrapper {
+        width: 200px;
+        height: 200px;
+      }
+      .article-block h2 {
+        font-size: 1.4rem;
+        flex-wrap: wrap;
+      }
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="particles-canvas"></canvas>
+
+  <div class="container">
+
+    <header class="header">
+      <div class="logo">◈ ANON·FALL</div>
+      <div class="header-links">
+        <a href="https://t.me/Obyzava_HNKN" target="_blank">
+          <span>Создатель</span> <i>@Obyzava_HNKN</i>
+        </a>
+        <a href="https://t.me/Anonymous_in_telegram" target="_blank">
+          <span>Канал</span> <i>@Anonymous_in_telegram</i>
+        </a>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="hero-text">
+        <div class="badge">⚠️ Миф развенчан</div>
+        <h1>Почему анонимности <br><span>не существует</span> в Telegram</h1>
+        <p>Иллюзия пустого экрана рушится о твои привычки, эмоции и одну-единственную секунду слабости.</p>
+      </div>
+      <div class="hero-image">
+        <div class="mask-wrapper">
+          <img src="https://i.pinimg.com/736x/a7/e6/f1/a7e6f1fcc1de21b3ae0a895f9a9349c5.jpg" alt="Маска Anonymous">
+        </div>
+      </div>
+    </section>
+
+    <div class="article">
+
+      <div class="article-block" data-delay="0.1">
+        <h2><span class="step">01</span> Техническая смерть</h2>
+        <div class="divider"></div>
+        <p>Скажи мне, куда девается твой интернет-трафик? Даже через VPN и Tor твой пакет данных выходит из твоего домашнего роутера или с твоей мобильной вышки. Telegram может не видеть твой IP, но <span class="highlight">твой оператор связи — видит</span>. Он видит, <em>когда</em> ты отправил сообщение, <em>какой объём</em> данных ушёл и в <em>какой дата-центр</em>. Это называется метаданными. И их достаточно, чтобы нарисовать твой портрет, даже не читая твоих чатов.</p>
+        <div class="quote">«Анонимность — это не отсутствие данных, это отсутствие интереса к ним. Но интерес появляется быстро.»</div>
+      </div>
+
+      <div class="article-block" data-delay="0.3">
+        <h2><span class="step">02</span> Социальная смерть</h2>
+        <div class="divider"></div>
+        <p>Анонимность рушится не от взлома. Она рушится от твоей привычки быть удобным. Ты не можешь молчать. Рано или поздно ты примешь участие в групповом чате. Ты пошутишь. Ты проявишь характер. <span class="highlight">Твой сленг, твоя манера ставить запятые, твой график активности</span> (ты ведь просыпаешься в 8:00 и ложишься в 23:00 — как все нормальные люди).</p>
+        <p>И вот это и есть твой цифровой отпечаток пальца. Даже если у тебя нет аватарки, ты оставляешь <em>почерк</em>. Достаточно одного конфликта, одного слитого скриншота или одного «привет, старый, как жизнь?», чтобы твой никнейм «Максим_007» связали с реальным Петровым из офиса на Тверской.</p>
+      </div>
+
+      <div class="article-block" data-delay="0.5">
+        <h2><span class="step">03</span> Фатальная ошибка</h2>
+        <div class="divider"></div>
+        <p>Сначала ты шифруешь каждое сообщение, проверяешь сертификаты и удаляешь историю. Это смешно. Это детский сад. Через месяц ты устаешь. Ты хочешь просто отправить мем, не заморачиваясь. Ты хочешь позвонить с голосом, чтобы не набирать текст.</p>
+        <div class="error-card">
+          <h3>⚡ Хлоп — и всё.</h3>
+          <p>Твоей анонимности нет. Она исчезла не потому, что тебя вычислили спецслужбы. Она исчезла, потому что <strong>ты устал играть в шпиона</strong>. Ты допустил одну ошибку. Потом ещё одну. Ты ослабил бдительность ровно на одну секунду. И этого хватило.</p>
+        </div>
+        <p>Помни: в цифровом мире нет «невидимок». Есть только те, чью биографию ещё не нашли. И ты сам, своими руками, в этот самый момент, строишь мостик между твоим ником и твоим паспортом. Каждым сообщением. Каждым звонком. Каждым включенным микрофоном.</p>
+      </div>
+
+      <div class="article-block" data-delay="0.65">
+        <h2><span class="step">04</span> Как хотя бы чуть-чуть спрятаться</h2>
+        <div class="divider"></div>
+        <p style="margin-bottom: 0.5rem;">Полной анонимности не будет, но от назойливых «ЖДИ ДОООКССС» и случайных утечек можно защититься. Вот минимум, который отсечёт 90% бытового доксинга:</p>
+
+        <div class="tips-grid">
+          <div class="tip-item">
+            <span class="icon">📱</span>
+            <div class="text"><strong>Временный номер</strong> – используй виртуальную SIM или одноразовый номер для регистрации. Не привязывай основной.</div>
+          </div>
+          <div class="tip-item">
+            <span class="icon">🕵️</span>
+            <div class="text"><strong>Никаких личных фото</strong> – в аватарке и галерее не должно быть лиц, документов, дома, машины. Стоковая картинка – норма.</div>
+          </div>
+          <div class="tip-item">
+            <span class="icon">🔐</span>
+            <div class="text"><strong>Уникальный пароль</strong> – отдельный для Telegram, не повторяй нигде. Включи двухфакторную авторизацию.</div>
+          </div>
+          <div class="tip-item">
+            <span class="icon">🌐</span>
+            <div class="text"><strong>VPN / прокси</strong> – скрывай свой реальный IP даже от Telegram, особенно в публичных чатах.</div>
+          </div>
+          <div class="tip-item">
+            <span class="icon">🗑️</span>
+            <div class="text"><strong>Метаданные</strong> – отключай геотеги в фото, удаляй EXIF перед отправкой. Используй приложения для очистки.</div>
+          </div>
+          <div class="tip-item">
+            <span class="icon">📎</span>
+            <div class="text"><strong>Не переходи по ссылкам</strong> – фишинговые сайты собирают твой IP и данные браузера. Проверяй ссылки через ботов.</div>
+          </div>
+          <div class="tip-item">
+            <span class="icon">🤫</span>
+            <div class="text"><strong>Минимум информации о себе</strong> – не рассказывай в чатах город, работу, возраст, привычки. Даже в шутку.</div>
+          </div>
+          <div class="tip-item">
+            <span class="icon">⏳</span>
+            <div class="text"><strong>Удаляй историю</strong> – настрой автоматическое удаление сообщений через 1 месяц или 1 неделю для всех чатов.</div>
+          </div>
+        </div>
+        <p style="margin-top: 1.5rem; color: #b0bec5; font-size: 0.95rem;">Эти шаги не сделают тебя невидимкой, но заставят мелких «охотников» искать более лёгкую цель. Помни: анонимность — это дисциплина, а не настройка.</p>
+      </div>
+
+      <div class="article-block" data-delay="0.8">
+        <h2 style="font-size: 1.6rem;">Мыльный пузырь</h2>
+        <div class="divider"></div>
+        <p style="font-size: 1.15rem; font-weight: 400; color: #eceff1;">Анонимность в Telegram — это мыльный пузырь. Красивый, переливающийся, но лопающийся от первого же твоего неосторожного движения.</p>
+        <p style="margin-top: 1rem; color: #90a4ae;">Ты не призрак. Ты — человек. А человек, по определению, существо привычное, ленивое и эмоциональное. Именно эти три качества убивают твою анонимность быстрее, чем любой спецотдел.</p>
+      </div>
+
+    </div>
+
+    <footer class="footer">
+      <div class="creator">
+        ✦ Создатель: <a href="https://t.me/Obyzava_HNKN" target="_blank">@Obyzava_HNKN</a>
+      </div>
+      <div class="channel">
+        <span>📡</span>
+        <a href="https://t.me/Anonymous_in_telegram" target="_blank">Anonymous_in_telegram</a>
+        <span class="arrow">→</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    (function() {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      let width, height;
+      let particles = [];
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      const PARTICLE_COUNT = 80;
+      class Particle {
+        constructor() {
+          this.x = Math.random() * width;
+          this.y = Math.random() * height;
+          this.size = Math.random() * 2 + 0.5;
+          this.speedX = (Math.random() - 0.5) * 0.4;
+          this.speedY = (Math.random() - 0.5) * 0.4;
+          this.opacity = Math.random() * 0.5 + 0.2;
+        }
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          if (this.x < 0 || this.x > width) this.speedX *= -1;
+          if (this.y < 0 || this.y > height) this.speedY *= -1;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(200, 210, 220, ${this.opacity})`;
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push(new Particle());
+      }
+
+      function drawParticles() {
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+          p.update();
+          p.draw();
+        });
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 150) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.strokeStyle = `rgba(180, 190, 200, ${0.08 * (1 - dist / 150)})`;
+              ctx.lineWidth = 0.6;
+              ctx.stroke();
+            }
+          }
+        }
+        requestAnimationFrame(drawParticles);
+      }
+      drawParticles();
+
+      const blocks = document.querySelectorAll('.article-block');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+
+      blocks.forEach(block => {
+        const delay = parseFloat(block.getAttribute('data-delay')) || 0;
+        block.style.transitionDelay = delay + 's';
+        observer.observe(block);
+      });
+
+      setTimeout(() => {
+        blocks.forEach(block => {
+          const rect = block.getBoundingClientRect();
+          if (rect.top < window.innerHeight - 100) {     /* === Ебать я молодец === */
+            block.classList.add('visible');
+          }
+        });
+      }, 300);
+
+    })();
+  </script>
+</body>
+</html>
